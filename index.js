@@ -23,6 +23,8 @@ import { findDuplicate } from './lib/duplicate.js';
 import { extractKeywords } from './lib/keywords.js';
 import { readQueue, addToQueue, writeQueue } from './lib/queue.js';
 import { summarizeContent } from './lib/summarize.js';
+import { resolveConfig } from './lib/config.js';
+import { runInit } from './lib/init.js';
 import { writeFile } from 'node:fs/promises';
 
 // --- Argument Parsing ---
@@ -38,6 +40,7 @@ const { values, positionals } = parseArgs({
     'no-summary': { type: 'boolean', default: false },
     'dry-run': { type: 'boolean', default: false },
     help: { type: 'boolean', short: 'h', default: false },
+    yes: { type: 'boolean', short: 'y', default: false },
   },
 });
 
@@ -51,12 +54,19 @@ if (values.help || !subcommand) {
   process.exit(0);
 }
 
+if (subcommand === 'init') {
+  await runInit(values.yes);
+  process.exit(0);
+}
+
 if (subcommand !== 'save') {
-  output({ success: false, error: `Unknown command: ${subcommand}. Available: save` });
+  output({ success: false, error: `Unknown command: ${subcommand}. Available: init, save` });
   process.exit(1);
 }
 
-const vaultPath = resolve(values.vault);
+// Resolve config: CLI flags > env vars > config file > defaults
+const config = await resolveConfig(values);
+const vaultPath = resolve(config.vault);
 
 try {
   await ensureArticlesDir();
@@ -200,10 +210,10 @@ async function saveUrl(url) {
   // 7. Generate filename
   const { filename, filepath } = generateFilename(title, domain, vaultPath);
 
-  // 8. Summarize (unless --no-summary)
+  // 8. Summarize (unless --no-summary or config.summarize is false)
   let summary = null;
-  if (!values['no-summary']) {
-    summary = await summarizeContent(fetchResult.article.content, title);
+  if (!values['no-summary'] && config.summarize !== false) {
+    summary = await summarizeContent(fetchResult.article.content, title, config);
   }
 
   // 9. Build file content
@@ -338,15 +348,19 @@ function printUsage() {
 Clawsidian — OpenClaw's Obsidian Toolkit
 
 Usage:
+  clawsidian init                     Set up clawsidian (detects your environment)
   clawsidian save <url> [options]     Save a web article to the vault
   clawsidian save --queue <url>       Add URL to queue for later processing
   clawsidian save --process-queue     Process all queued URLs
 
 Options:
-  --vault <path>    Vault root path (default: ~/openclaw/obsidian-vault)
+  --vault <path>    Vault root path (default: from config or ~/openclaw/obsidian-vault)
   --tags <tags>     Comma-separated tags (e.g., "ai,ml,tutorial")
+  --no-summary      Skip AI-generated summary
   --json            Output JSON instead of human-readable text
   --dry-run         Show what would be saved without writing
   -h, --help        Show this help
+
+Config: ~/.config/clawsidian/config.json
 `);
 }
