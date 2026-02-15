@@ -22,6 +22,7 @@ import { buildFrontmatter } from './lib/frontmatter.js';
 import { findDuplicate } from './lib/duplicate.js';
 import { extractKeywords } from './lib/keywords.js';
 import { readQueue, addToQueue, writeQueue } from './lib/queue.js';
+import { summarizeContent } from './lib/summarize.js';
 import { writeFile } from 'node:fs/promises';
 
 // --- Argument Parsing ---
@@ -34,6 +35,7 @@ const { values, positionals } = parseArgs({
     json: { type: 'boolean', default: false },
     queue: { type: 'boolean', default: false },
     'process-queue': { type: 'boolean', default: false },
+    'no-summary': { type: 'boolean', default: false },
     'dry-run': { type: 'boolean', default: false },
     help: { type: 'boolean', short: 'h', default: false },
   },
@@ -198,7 +200,13 @@ async function saveUrl(url) {
   // 7. Generate filename
   const { filename, filepath } = generateFilename(title, domain, vaultPath);
 
-  // 8. Build file content
+  // 8. Summarize (unless --no-summary)
+  let summary = null;
+  if (!values['no-summary']) {
+    summary = await summarizeContent(fetchResult.article.content, title);
+  }
+
+  // 9. Build file content
   const frontmatter = buildFrontmatter({
     url: normalizedUrl,
     title,
@@ -209,9 +217,10 @@ async function saveUrl(url) {
     status: 'complete',
   });
 
-  const fileContent = `${frontmatter}\n\n# ${title}\n\n${fetchResult.article.content}\n`;
+  const summaryBlock = summary ? `\n> **Summary:** ${summary}\n` : '';
+  const fileContent = `${frontmatter}\n\n# ${title}\n${summaryBlock}\n${fetchResult.article.content}\n`;
 
-  // 9. Build result
+  // 10. Build result
   const result = {
     success: true,
     file: `Articles/${filename}`,
