@@ -108,7 +108,7 @@ Article content in clean markdown...
 ## Options
 
 ```
---vault <path>    Vault root path (default: ~/openclaw/obsidian-vault/obsidian-vault)
+--vault <path>    Vault root path (default: ~/openclaw/obsidian-vault)
 --tags <tags>     Comma-separated tags (overrides auto-generated)
 --json            Output JSON instead of human-readable text
 --dry-run         Show what would be saved without writing

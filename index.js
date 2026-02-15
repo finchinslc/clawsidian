@@ -29,7 +29,7 @@ import { writeFile } from 'node:fs/promises';
 const { values, positionals } = parseArgs({
   allowPositionals: true,
   options: {
-    vault: { type: 'string', default: join(homedir(), 'openclaw/obsidian-vault/obsidian-vault') },
+    vault: { type: 'string', default: join(homedir(), 'openclaw/obsidian-vault') },
     tags: { type: 'string' },
     json: { type: 'boolean', default: false },
     queue: { type: 'boolean', default: false },
@@ -334,7 +334,7 @@ Usage:
   clawsidian save --process-queue     Process all queued URLs
 
 Options:
-  --vault <path>    Vault root path (default: ~/openclaw/obsidian-vault/obsidian-vault)
+  --vault <path>    Vault root path (default: ~/openclaw/obsidian-vault)
   --tags <tags>     Comma-separated tags (e.g., "ai,ml,tutorial")
   --json            Output JSON instead of human-readable text
   --dry-run         Show what would be saved without writing
