@@ -1,0 +1,46 @@
+{
+  "name": "clawsidian",
+  "version": "0.1.0",
+  "description": "OpenClaw's Obsidian Toolkit — CLI for managing Obsidian vaults from OpenClaw agents",
+  "type": "module",
+  "bin": {
+    "clawsidian": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "lib/"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "test": "node --test test/"
+  },
+  "keywords": [
+    "obsidian",
+    "openclaw",
+    "markdown",
+    "cli",
+    "knowledge-management",
+    "web-clipper",
+    "readability",
+    "article-saver"
+  ],
+  "author": "Finch <finchinslc@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/finchinslc/clawsidian.git"
+  },
+  "homepage": "https://github.com/finchinslc/clawsidian#readme",
+  "bugs": {
+    "url": "https://github.com/finchinslc/clawsidian/issues"
+  },
+  "dependencies": {
+    "@mozilla/readability": "^0.6.0",
+    "jsdom": "^28.0.0",
+    "slugify": "^1.6.6",
+    "turndown": "^7.2.0",
+    "yaml": "^2.7.0"
+  }
+}
